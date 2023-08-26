@@ -26,7 +26,7 @@ BASE_PKG="base-full"
 PLAT_PKG=
 KERNEL_PKG=
 
-PLATFORMS="bootstrap core minimal full rpi pbp rockpro64 unmatched"
+PLATFORMS="bootstrap core minimal full rpi pbp rockpro64 unmatched visionfive2"
 
 for pkg in ${PLATFORMS}; do
     if [ "$pkg" = "$PLATFORM" ]; then
@@ -35,6 +35,7 @@ for pkg in ${PLATFORMS}; do
             minimal) BASE_PKG="base-minimal" ;;
             core) BASE_PKG="base-core" ;;
             rpi) KERNEL_PKG="linux-rpi" ;;
+            visionfive2) KERNEL_PKG="linux-stable" ;;
             *) KERNEL_PKG="linux-lts" ;;
         esac
         exec ./mkrootfs.sh -b "$BASE_PKG" \
@@ -47,5 +48,5 @@ echo "unknown PLATFORM type: $PLATFORM"
 echo
 echo "supported platform types: full core minimal bootstrap"
 echo "                          rpi pbp rockpro64"
-echo "                          unmatched"
+echo "                          unmatched visionfive2"
 exit 1

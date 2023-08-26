@@ -89,5 +89,6 @@ case "$APK_ARCH" in
         ;;
     riscv64)
         make_device unmatched "$@"
+        make_device visionfive2 "$@"
         ;;
 esac
