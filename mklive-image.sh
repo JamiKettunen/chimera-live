@@ -37,6 +37,9 @@ case "$IMAGE" in
     gnome)
         PKGS="${BASE_PKGS} gnome"
         ;;
+    plasma)
+        PKGS="${BASE_PKGS} chimera-repo-contrib plasma-desktop !plasma-desktop-multimedia-meta !plasma-desktop-devtools-meta !plasma-desktop-kdepim-meta"
+        ;;
     *)
         echo "unknown image type: $IMAGE"
         echo
