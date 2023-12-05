@@ -33,7 +33,7 @@ case "$IMAGE" in
         ;;
     plasma)
         # TODO: finish something like base-desktop for KDE Plasma 6 as well
-        PKGS="${BASE_PKGS} base-full pipewire mesa-dri xdg-utils desktop-file-utils networkmanager fonts-noto fonts-noto-emoji-ttf fonts-hack-ttf sddm breeze-icons plasma-desktop plasma-integration kactivitymanagerd breeze kscreen ksystemstats kirigami-addons systemsettings konsole xdg-desktop-portal-kde xdg-user-dirs-gtk xserver-xorg-input-libinput chimera-repo-contrib"
+        PKGS="${BASE_PKGS} base-full pipewire mesa-dri xdg-utils desktop-file-utils networkmanager fonts-noto fonts-noto-emoji-ttf fonts-hack-ttf sddm breeze-icons plasma-desktop plasma-integration kactivitymanagerd breeze kscreen ksystemstats kirigami-addons kded systemsettings konsole xdg-desktop-portal-kde xdg-user-dirs-gtk upower xserver-xorg-input-libinput chimera-repo-contrib"
         ;;
     *)
         echo "unknown image type: $IMAGE"
