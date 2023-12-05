@@ -280,7 +280,8 @@ mount_pseudo
 #
 # when adding stuff for more desktops/display managers,
 # adjust accordingly and also adjust the initramfs hooks
-if [ -f "${ROOT_DIR}/etc/dinit.d/gdm" ]; then
+if [ -f "${ROOT_DIR}/etc/dinit.d/gdm" ] || \
+   [ -f "${ROOT_DIR}/etc/dinit.d/sddm" ]; then
     GRAPHICAL=1
 fi
 

@@ -49,6 +49,21 @@ EOF
 AutomaticLoginEnable=true
 AutomaticLogin=anon
 EOF
+    elif [ -f "/root/etc/dinit.d/sddm" ]; then
+        # enable service
+        Chimera_Service sddm
+        # session
+        # TODO: plasmax11?
+        if [ -f /root/usr/share/wayland-sessions/plasma.desktop ]; then
+            _SDDM_SESSION="Session=plasma"
+        fi
+        # autologin
+        chroot /root mkdir /etc/sddm.conf.d
+        cat > /root/etc/sddm.conf.d/custom.conf << EOF
+[Autologin]
+User=anon
+${_SDDM_SESSION}
+EOF
     fi
 
     log_end_msg
