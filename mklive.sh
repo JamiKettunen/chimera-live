@@ -105,7 +105,10 @@ if [ -z "$MKLIVE_BOOTLOADER" ]; then
 fi
 
 case "$MKLIVE_BOOTLOADER" in
-    limine) HOST_PACKAGES="$HOST_PACKAGES limine" ;;
+    limine)
+        HOST_PACKAGES="$HOST_PACKAGES limine"
+        [ "$APK_ARCH" = "aarch64" ] && PACKAGES="$(echo "$PACKAGES" | sed 's/linux-stable /linux-stable-stubble /')"
+    ;;
     nyaboot) HOST_PACKAGES="$HOST_PACKAGES nyaboot" ;;
     grub)
         HOST_PACKAGES="$HOST_PACKAGES grub"
@@ -365,7 +368,20 @@ generate_menu() {
      -e "s|@@KERNVER@@|${KERNVER}|g" \
      -e "s|@@ARCH@@|${APK_ARCH}|g" \
      -e "s|@@BOOT_CMDLINE@@|${CMDLINE}|g" \
-     "$1"
+     "$1" |
+    # zboot efi executable / stubble
+    {
+        if [ "$MKLIVE_BOOTLOADER" = "limine" ] && \
+           file -b "${ROOT_DIR}/boot/${KERNFILE}"* | grep -q '^PE32'; then
+            sed \
+             -e 's|^protocol: linux$|protocol: efi|' \
+             -e 's|^kernel_path|path|' \
+             -e '/^module_path:.*initrd/d' \
+             -e 's|^cmdline:|& initrd=\\live\\initrd|'
+        else
+            cat
+        fi
+    }
 }
 
 # grub support, mkrescue chooses what to do automatically
