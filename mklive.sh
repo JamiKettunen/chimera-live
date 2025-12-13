@@ -107,7 +107,6 @@ fi
 case "$MKLIVE_BOOTLOADER" in
     limine)
         HOST_PACKAGES="$HOST_PACKAGES limine"
-        [ "$APK_ARCH" = "aarch64" ] && PACKAGES="$(echo "$PACKAGES" | sed 's/linux-stable /linux-stable-stubble /')"
     ;;
     nyaboot) HOST_PACKAGES="$HOST_PACKAGES nyaboot" ;;
     grub)
@@ -371,6 +370,8 @@ generate_menu() {
      "$1" |
     # zboot efi executable / stubble
     {
+        DTBS=$(find "${ROOT_DIR}/boot/dtbs/dtbs-${KERNVER}"/ -name "x1e80100-asus-vivobook-s15.dtb")
+        cp $DTBS "${LIVE_DIR}"
         if [ "$MKLIVE_BOOTLOADER" = "limine" ] && \
            file -b "${ROOT_DIR}/boot/${KERNFILE}"* | grep -q '^PE32'; then
             sed \
