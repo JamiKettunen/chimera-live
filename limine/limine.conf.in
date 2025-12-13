@@ -5,10 +5,12 @@ serial: yes
 protocol: linux
 kernel_path: boot():/live/@@KERNFILE@@
 module_path: boot():/live/initrd
+dtb_path: boot():/live/x1e78100-lenovo-thinkpad-t14s.dtb
 cmdline: boot=live live-media=CHIMERA_LIVE dinit_skip_volumes init=/usr/bin/init loglevel=4 @@BOOT_CMDLINE@@
 
 /@@BOOT_TITLE@@ @@KERNVER@@ (@@ARCH@@) (RAM)
 protocol: linux
 kernel_path: boot():/live/@@KERNFILE@@
 module_path: boot():/live/initrd
+dtb_path: boot():/live/x1e78100-lenovo-thinkpad-t14s.dtb
 cmdline: boot=live live-media=CHIMERA_LIVE dinit_skip_volumes toram init=/usr/bin/init loglevel=4 @@BOOT_CMDLINE@@

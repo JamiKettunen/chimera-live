@@ -443,6 +443,7 @@ case "$MKLIVE_BOOTLOADER" in
                 cp "${HOST_DIR}/usr/share/limine/BOOTX64.EFI" "${IMAGE_DIR}/EFI/BOOT"
                 ;;
             aarch64)
+                cp $(find "${ROOT_DIR}/boot/dtbs/dtbs-${KERNVER}"/ -name "x1e78100-lenovo-thinkpad-t14s.dtb") "${LIVE_DIR}"
                 cp "${HOST_DIR}/usr/share/limine/BOOTAA64.EFI" "${IMAGE_DIR}/EFI/BOOT"
                 ;;
             riscv64)
