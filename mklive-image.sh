@@ -44,7 +44,7 @@ case "$IMAGE" in
         PKGS="${BASE_PKGS} gnome"
         ;;
     plasma)
-        PKGS="${BASE_PKGS} plasma-desktop xserver-xorg"
+        PKGS="${BASE_PKGS} plasma-desktop"
         ;;
     *)
         echo "unknown image type: $IMAGE"
