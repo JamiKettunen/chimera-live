@@ -105,7 +105,7 @@ if [ -z "$MKLIVE_BOOTLOADER" ]; then
 fi
 
 case "$MKLIVE_BOOTLOADER" in
-    limine) HOST_PACKAGES="$HOST_PACKAGES limine"; [ "$APK_ARCH" = "aarch64" ] && PACKAGES="$PACKAGES stubble" ;;
+    limine) HOST_PACKAGES="$HOST_PACKAGES limine"; [ "$APK_ARCH" = "aarch64" ] && PACKAGES="$PACKAGES stubble systemd-boot-ukify" ;;
     nyaboot) HOST_PACKAGES="$HOST_PACKAGES nyaboot" ;;
     grub)
         HOST_PACKAGES="$HOST_PACKAGES grub"
@@ -300,9 +300,15 @@ if [ "$APK_ARCH" = "aarch64" ]; then
         --linux="/boot/${KERNFILE}-${KERNVER}" --hwids="${hwids}" --uname "${KERNVER}" \
         $(echo "${dtbs}" | xargs -I {} echo "--devicetree-auto={}") \
         --output="/boot/${KERNFILE}-${KERNVER}" || die "unable to embed devicetrees"
-fi
 
-mv "${ROOT_DIR}/tmp/initrd" "${LIVE_DIR}"
+    chroot "${ROOT_DIR}" ukify build \
+        --linux="/boot/${KERNFILE}-${KERNVER}" --uname "${KERNVER}" \
+        --initrd="/tmp/initrd" \
+        --output="/boot/${KERNFILE}-${KERNVER}" || die "unable to build UKI"
+    # TODO: rm "${ROOT_DIR}/tmp/initrd" ?
+else
+    mv "${ROOT_DIR}/tmp/initrd" "${LIVE_DIR}"
+fi
 
 for f in "${ROOT_DIR}/boot/"vmlinu[xz]-"${KERNVER}"; do
     tf=${f##*boot/}
@@ -379,7 +385,7 @@ generate_menu() {
      -e "s|@@ARCH@@|${APK_ARCH}|g" \
      -e "s|@@BOOT_CMDLINE@@|${CMDLINE}|g" \
      "$1" |
-    # zboot efi executable / stubble
+    # UKI / EFI zboot / stubble executables
     {
         if [ "$MKLIVE_BOOTLOADER" = "limine" ] && \
            file -b "${ROOT_DIR}/boot/${KERNFILE}-${KERNVER}" | grep -q '^PE32'; then
@@ -387,7 +393,6 @@ generate_menu() {
              -e 's|^protocol: linux$|protocol: efi|' \
              -e 's|^kernel_path|path|' \
              -e '/^module_path:.*initrd/d' \
-             -e 's|^cmdline:|& initrd=\\live\\initrd|'
         else
             cat
         fi
