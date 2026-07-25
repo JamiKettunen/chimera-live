@@ -242,19 +242,6 @@ if [ -z "$KERNFILE" ]; then
     die "no kernel found matching '${KERNVER}'"
 fi
 
-if [ "$APK_ARCH" = "aarch64" ]; then
-    hwids=/usr/share/stubble/hwids
-    dtbs=$(chroot "${ROOT_DIR}" /usr/lib/stubble/finddtbs.py "/boot/dtbs/dtbs-${KERNVER}" "${hwids}")
-    [ "${dtbs}" ] || die "found no devicetrees to embed"
-
-    msg "Embedding $(echo "${dtbs}" | wc -l) DTBs into kernel via stubble EFI stub..."
-    # NOTE: could also use cmd:ukify (>=257) instead with same args since we don't use .machdb (RISC-V)
-    chroot "${ROOT_DIR}" stubblify build --stub="/usr/lib/stubble/stubble.efi" \
-        --linux="/boot/${KERNFILE}-${KERNVER}" --hwids="${hwids}" --uname "${KERNVER}" \
-        $(echo "${dtbs}" | xargs -I {} echo "--devicetree-auto={}") \
-        --output="/boot/${KERNFILE}-${KERNVER}" || die "unable to embed devicetrees"
-fi
-
 # copy target-specific grub files
 if [ "$MKLIVE_BOOTLOADER" = "grub" ]; then
     rm -rf "${HOST_DIR}/usr/lib/grub"
@@ -301,7 +288,20 @@ copy_initramfs || die "failed to copy initramfs files"
 msg "Generating initial ramdisk and copying kernel..."
 chroot "${ROOT_DIR}" mkinitramfs -o /tmp/initrd "${KERNVER}" \
     || die "unable to generate ramdisk"
-    
+
+if [ "$APK_ARCH" = "aarch64" ]; then
+    hwids=/usr/share/stubble/hwids
+    dtbs=$(chroot "${ROOT_DIR}" /usr/lib/stubble/finddtbs.py "/boot/dtbs/dtbs-${KERNVER}" "${hwids}")
+    [ "${dtbs}" ] || die "found no devicetrees to embed"
+
+    msg "Embedding $(echo "${dtbs}" | wc -l) DTBs into kernel via stubble EFI stub..."
+    # NOTE: could also use cmd:ukify (>=257) instead with same args since we don't use .machdb (RISC-V)
+    chroot "${ROOT_DIR}" stubblify build --stub="/usr/lib/stubble/stubble.efi" \
+        --linux="/boot/${KERNFILE}-${KERNVER}" --hwids="${hwids}" --uname "${KERNVER}" \
+        $(echo "${dtbs}" | xargs -I {} echo "--devicetree-auto={}") \
+        --output="/boot/${KERNFILE}-${KERNVER}" || die "unable to embed devicetrees"
+fi
+
 mv "${ROOT_DIR}/tmp/initrd" "${LIVE_DIR}"
 
 for f in "${ROOT_DIR}/boot/"vmlinu[xz]-"${KERNVER}"; do
