@@ -105,7 +105,7 @@ if [ -z "$MKLIVE_BOOTLOADER" ]; then
 fi
 
 case "$MKLIVE_BOOTLOADER" in
-    limine) HOST_PACKAGES="$HOST_PACKAGES limine" ;;
+    limine) HOST_PACKAGES="$HOST_PACKAGES limine"; [ "$APK_ARCH" = "aarch64" ] && PACKAGES="$PACKAGES stubble" ;;
     nyaboot) HOST_PACKAGES="$HOST_PACKAGES nyaboot" ;;
     grub)
         HOST_PACKAGES="$HOST_PACKAGES grub"
@@ -240,6 +240,19 @@ fi
 
 if [ -z "$KERNFILE" ]; then
     die "no kernel found matching '${KERNVER}'"
+fi
+
+if [ "$APK_ARCH" = "aarch64" ]; then
+    hwids=/usr/share/stubble/hwids
+    dtbs=$(chroot "${ROOT_DIR}" /usr/lib/stubble/finddtbs.py "/boot/dtbs/dtbs-${KERNVER}" "${hwids}")
+    [ "${dtbs}" ] || die "found no devicetrees to embed"
+
+    msg "Embedding $(echo "${dtbs}" | wc -l) DTBs into kernel via stubble EFI stub..."
+    # NOTE: could also use cmd:ukify (>=257) instead with same args since we don't use .machdb (RISC-V)
+    chroot "${ROOT_DIR}" stubblify build --stub="/usr/lib/stubble/stubble.efi" \
+        --linux="/boot/${KERNFILE}-${KERNVER}" --hwids="${hwids}" --uname "${KERNVER}" \
+        $(echo "${dtbs}" | xargs -I {} echo "--devicetree-auto={}") \
+        --output="/boot/${KERNFILE}-${KERNVER}" || die "unable to embed devicetrees"
 fi
 
 # copy target-specific grub files
